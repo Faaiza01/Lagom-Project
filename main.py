@@ -36,6 +36,20 @@ from modules.school_impact import (
 )
 
 # ============================================================
+# IMPORT MODULE 4
+# ============================================================
+
+from modules.infrastructure import (
+    calculate_infrastructure_offset,
+)
+
+# ============================================================
+# IMPORT MODULE 5
+# ============================================================
+
+from modules.jobs import calculate_direct_jobs
+
+# ============================================================
 # PATHS
 # ============================================================
 
@@ -882,7 +896,204 @@ def run_module3(counties):
 
     return results_df
 
+# ============================================================
+# MODULE 4 - INFRASTRUCTURE COST OFFSET
+# ============================================================
 
+def run_module4(counties):
+
+    print()
+    print("=" * 70)
+    print("MODULE 4 - INFRASTRUCTURE COST OFFSET")
+    print("=" * 70)
+
+    # --------------------------------------------------------
+    # 1. Run infrastructure cost calculation
+    # --------------------------------------------------------
+
+    results = calculate_infrastructure_offset(
+        counties
+    )
+
+    # --------------------------------------------------------
+    # 2. Print results
+    # --------------------------------------------------------
+
+    print()
+    print("INFRASTRUCTURE COST OFFSET RESULTS")
+    print("-" * 70)
+
+    for _, row in results.iterrows():
+
+        print()
+
+        print(
+            f"County: "
+            f"{row['County']}, {row['State']}"
+        )
+
+        print(
+            f"Homes: "
+            f"{row['Homes']:,.0f}"
+        )
+
+        print(
+            f"Traditional Inspections / Unit: "
+            f"{row['Traditional Inspections per Unit']}"
+        )
+
+        print(
+            f"SIP Inspections / Unit: "
+            f"{row['SIP Inspections per Unit']}"
+        )
+
+        print(
+            f"Saved Inspections / Unit: "
+            f"{row['Saved Inspections per Unit']}"
+        )
+
+        print(
+            f"Inspector Cost / Trip: "
+            f"${row['Inspector Cost per Trip']:,.2f}"
+        )
+
+        print(
+            f"Total Avoided Inspections: "
+            f"{row['Total Avoided Inspections']:,.0f}"
+        )
+
+        print(
+            f"One-Time Infrastructure Cost Offset: "
+            f"${row['Infrastructure Cost Offset']:,.2f}"
+        )
+
+        print(
+            f"Benefit Type: "
+            f"{row['Benefit Type']}"
+        )
+
+    # --------------------------------------------------------
+    # 3. Save Module 4 Excel
+    # --------------------------------------------------------
+
+    output_file = (
+        OUTPUT_DIR
+        / "module4_infrastructure_offset.xlsx"
+    )
+
+    results.to_excel(
+        output_file,
+        index=False
+    )
+
+    print()
+    print(
+        "Module 4 Excel saved to:"
+    )
+
+    print(output_file)
+
+    print()
+    print("MODULE 4 COMPLETED")
+
+    return results
+
+
+# ============================================================
+# MODULE 5 - DIRECT JOB CREATION
+# ============================================================
+
+def run_module5():
+
+    print()
+    print("=" * 70)
+    print("MODULE 5 - DIRECT JOB CREATION")
+    print("=" * 70)
+
+    # --------------------------------------------------------
+    # 1. File paths
+    # --------------------------------------------------------
+
+    job_inputs_file = (
+        DATA_DIR / "job_creation_inputs.xlsx"
+    )
+
+    bls_file = (
+        DATA_DIR / "MSA_M2025_dl.xlsx"
+    )
+
+    output_file = (
+        OUTPUT_DIR / "module5_direct_job_creation.xlsx"
+    )
+
+    # --------------------------------------------------------
+    # 2. Run Module 5
+    # --------------------------------------------------------
+
+    results, occupation_detail = calculate_direct_jobs(
+        job_inputs_file=job_inputs_file,
+        bls_file=bls_file
+    )
+
+    # --------------------------------------------------------
+    # 3. Print results
+    # --------------------------------------------------------
+
+    print()
+    print("DIRECT JOB CREATION RESULTS")
+    print("-" * 70)
+
+    for _, row in results.iterrows():
+
+        print()
+        print(
+            f"County: {row['County']}, {row['State']}"
+        )
+
+        print(
+            f"Direct Factory Jobs: "
+            f"{row['Direct Jobs']:,.0f}"
+        )
+
+        print(
+            f"Direct Annual Payroll: "
+            f"${row['Direct Payroll']:,.2f}"
+        )
+
+        print(
+            f"Weighted Average Wage: "
+            f"${row['Weighted Average Wage']:,.2f}"
+        )
+
+    # --------------------------------------------------------
+    # 4. Save output
+    # --------------------------------------------------------
+
+    with pd.ExcelWriter(
+        output_file,
+        engine="openpyxl"
+    ) as writer:
+
+        results.to_excel(
+            writer,
+            sheet_name="Job_Creation_Summary",
+            index=False
+        )
+
+        occupation_detail.to_excel(
+            writer,
+            sheet_name="Occupation_Detail",
+            index=False
+        )
+
+    print()
+    print("Module 5 Excel saved to:")
+    print(output_file)
+
+    print()
+    print("MODULE 5 COMPLETED")
+
+    return results
 # ============================================================
 # MAIN - RUN ALL AVAILABLE MODULES
 # ============================================================
@@ -925,6 +1136,20 @@ def main():
     run_module3(
         counties
     )
+    
+    # --------------------------------------------------------
+    # Module 4
+    # --------------------------------------------------------
+
+    run_module4(
+    counties 
+    )
+    
+    # --------------------------------------------------------
+    # Module 5
+    # --------------------------------------------------------
+
+    run_module5()
 
 
     # --------------------------------------------------------
